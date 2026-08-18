@@ -14,16 +14,19 @@ const Courses = () => {
   const [level, setLevel] = useState('All');
   const [loading, setLoading] = useState(true);
 
-  const buildQuery = () => {
+  const buildQuery = useCallback(() => {
     const params = new URLSearchParams();
+
     if (keyword) params.set('keyword', keyword);
     if (category !== 'All') params.set('category', category);
     if (level !== 'All') params.set('level', level);
+
     return params.toString() ? `?${params.toString()}` : '';
-  };
+  }, [keyword, category, level]);
 
   const fetchCourses = useCallback(async () => {
     setLoading(true);
+
     try {
       const { data } = await api.get(`/courses${buildQuery()}`);
       setCourses(data);
@@ -32,7 +35,7 @@ const Courses = () => {
     } finally {
       setLoading(false);
     }
-  }, [keyword, category, level]);
+  }, [buildQuery]);
 
   useEffect(() => {
     fetchCourses();
@@ -49,14 +52,20 @@ const Courses = () => {
         <div>
           <p className="eyebrow">Find your next learning journey</p>
           <h2>Always stay ahead with curated courses</h2>
-          <p>Search by topic, skill level, or instructor to discover training that fits your career path.</p>
+          <p>
+            Search by topic, skill level, or instructor to discover training
+            that fits your career path.
+          </p>
         </div>
       </div>
 
       <div className="trend-bar">
         <span>Trending:</span>
+
         {trending.map((item) => (
-          <span key={item} className="trend-chip">{item}</span>
+          <span key={item} className="trend-chip">
+            {item}
+          </span>
         ))}
       </div>
 
@@ -67,17 +76,32 @@ const Courses = () => {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
           {categories.map((item) => (
-            <option key={item} value={item}>{item}</option>
+            <option key={item} value={item}>
+              {item}
+            </option>
           ))}
         </select>
-        <select value={level} onChange={(e) => setLevel(e.target.value)}>
+
+        <select
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+        >
           {levels.map((item) => (
-            <option key={item} value={item}>{item}</option>
+            <option key={item} value={item}>
+              {item}
+            </option>
           ))}
         </select>
-        <button type="submit" className="btn-primary">Filter</button>
+
+        <button type="submit" className="btn-primary">
+          Filter
+        </button>
       </form>
 
       {loading ? (
@@ -85,26 +109,47 @@ const Courses = () => {
       ) : courses.length === 0 ? (
         <div className="empty-state">
           <h3>No courses found</h3>
-          <p>Try adjusting your search terms and filters to discover more classes.</p>
+          <p>
+            Try adjusting your search terms and filters to discover more
+            classes.
+          </p>
         </div>
       ) : (
         <div className="course-grid">
           {courses.map((course) => (
-            <Link to={`/courses/${course._id}`} key={course._id} className="course-card glass-card">
+            <Link
+              to={`/courses/${course._id}`}
+              key={course._id}
+              className="course-card glass-card"
+            >
               <img
-                src={course.thumbnail || 'https://placehold.co/300x180?text=Course'}
+                src={
+                  course.thumbnail ||
+                  'https://placehold.co/300x180?text=Course'
+                }
                 alt={course.title}
               />
+
               <div className="course-card-body">
                 <div className="card-top">
                   <span className="badge">{course.level}</span>
                   <span className="badge soft">{course.category}</span>
                 </div>
+
                 <h3>{course.title}</h3>
-                <p className="muted">By {course.instructor?.name}</p>
+
+                <p className="muted">
+                  By {course.instructor?.name}
+                </p>
+
                 <div className="course-meta">
-                  <span>{course.price === 0 ? 'Free' : `$${course.price}`}</span>
-                  <span>{course.averageRating?.toFixed(1) || '0.0'} ⭐</span>
+                  <span>
+                    {course.price === 0 ? 'Free' : `$${course.price}`}
+                  </span>
+
+                  <span>
+                    {course.averageRating?.toFixed(1) || '0.0'} ⭐
+                  </span>
                 </div>
               </div>
             </Link>
